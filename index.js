@@ -1,33 +1,25 @@
 const express = require('express');
-const pool = require('./db'); // Importamos la conexión desde db.js
+const pool = require('./db');
 const app = express();
 
-// Ruta principal
+app.use(express.json());
+
 app.get('/', (req, res) => {
-  res.send('API funcionando');
+  res.send('API funcionando - Alejandro Gonzalez');
 });
 
-// Ruta de usuario (actividad anterior)
-app.get('/usuario', (req, res) => {
-    res.json({
-        id: 101,
-        nombre: "Alejandro Gonzalez",
-        rol: "Desarrollador"
-    });
+// NUEVA RUTA: Obtener todos los alumnos de la base de datos
+app.get('/alumnos', async (req, res) => {
+  try {
+    const resultado = await pool.query('SELECT * FROM alumno');
+    res.json(resultado.rows);
+  } catch (error) {
+    console.error('Error al consultar alumnos:', error);
+    res.status(500).json({ error: 'Error al obtener los alumnos' });
+  }
 });
 
-// PRUEBA DE CONEXIÓN A POSTGRESQL
-pool.connect()
-  .then(() => {
-    console.log('Conexión exitosa a PostgreSQL');
-  })
-  .catch((err) => {
-    console.error('Error de conexión', err);
-  });
-
-// Puerto del servidor
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`Prueba tu endpoint en: http://localhost:${PORT}/usuario`);
+app.listen(3000, () => {
+  console.log('Servidor corriendo en http://localhost:3000');
+  console.log('Consulta los alumnos en: http://localhost:3000/alumnos');
 });
